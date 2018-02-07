@@ -16,7 +16,9 @@ WEB-OTA是一套基于localStorage本地存储技术实现的前端页面热更�
 
 ![qrcode](https://github.com/tower1229/tower1229.github.io/raw/master/asset/web-ota-qrcode.png)
 
-体验本地文件般的刷新速度。
+刷新一下，体验本地文件般的加载速度。
+
+UI部分基于[Flow-UI](https://github.com/flow-ui/Flow-UI)实现。
 
 ## 许可证
 
