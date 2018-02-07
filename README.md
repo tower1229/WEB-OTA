@@ -12,7 +12,7 @@ WEB-OTA是一套基于localStorage本地存储技术实现的前端页面热更�
 
 ## 演示
 
-[http://refined-x.com/WEB-OTA/](http://refined-x.com/WEB-OTA/)
+请模拟手机访问：[http://refined-x.com/WEB-OTA/](http://refined-x.com/WEB-OTA/)
 
 ![qrcode](https://github.com/tower1229/tower1229.github.io/raw/master/asset/web-ota-qrcode.png)
 
