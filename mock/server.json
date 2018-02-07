@@ -1,0 +1,15 @@
+{
+	"status": "Y",
+	"data": {
+		"stableVersion": {
+			"id": "17",
+			"url": "./mock/stableVersion.html"
+		},
+		"activeVersion": {
+			"id": "18",
+			"url": "./mock/activeVersion.html",
+			"cycle": "2018,02,01-2018,02,10"
+		},
+		"today": "2018,02,06"
+	}
+}

@@ -1,0 +1,233 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<meta name="format-detection" content="telephone=no">
+		<link href="./asset/ui.css" rel="stylesheet">
+		<style>
+body{background:#fff;}
+.tempholder-banner{height: 0;width:100%;padding-bottom: 46.25%;background:#eee;}
+.tempholder-grids {
+    overflow: hidden;
+    margin-bottom: .2rem;
+}
+.tempholder-grids li {
+    float: left;
+    width: 20%;
+    text-align: center;
+}
+.tempholder-pic{height: 0;width:100%;padding-bottom: 100%;background:#eee;border-radius: 50%;overflow: hidden;transform: scale(0.8);}
+.tempholder-txt{display: inline-block;width:80%;height: 1.4em;line-height: 1.4em;background:#eee;}
+.tempholder-adbar{height: 0;width:100%;padding-bottom: 30%;background:#eee;margin-bottom: .2rem;}
+.tempholder-title{height: .8rem;background:#eee;margin-bottom: .2rem;}
+		</style>
+	</head>
+	<body>
+	<div id="body">
+		<div class="tempholder-banner"></div>
+		<ul class="tempholder-grids">
+			<li>
+				<div class="tempholder-pic"></div>
+				<div class="tempholder-txt"></div>
+			</li>
+			<li>
+				<div class="tempholder-pic"></div>
+				<div class="tempholder-txt"></div>
+			</li>
+			<li>
+				<div class="tempholder-pic"></div>
+				<div class="tempholder-txt"></div>
+			</li>
+			<li>
+				<div class="tempholder-pic"></div>
+				<div class="tempholder-txt"></div>
+			</li>
+			<li>
+				<div class="tempholder-pic"></div>
+				<div class="tempholder-txt"></div>
+			</li>
+			<li>
+				<div class="tempholder-pic"></div>
+				<div class="tempholder-txt"></div>
+			</li>
+			<li>
+				<div class="tempholder-pic"></div>
+				<div class="tempholder-txt"></div>
+			</li>
+			<li>
+				<div class="tempholder-pic"></div>
+				<div class="tempholder-txt"></div>
+			</li>
+			<li>
+				<div class="tempholder-pic"></div>
+				<div class="tempholder-txt"></div>
+			</li>
+			<li>
+				<div class="tempholder-pic"></div>
+				<div class="tempholder-txt"></div>
+			</li>
+		</ul>
+		<div class="tempholder-adbar adbar"></div>
+		<div class="tempholder-title"></div>
+	</div>
+	</body>
+	<script src="./asset/core.js" id="seajsnode" ></script>
+	<script src="http://static-zt.oss-cn-qingdao.aliyuncs.com/modules/manifest.js"></script>
+	<script>
+	define('core', function(require) {
+		if(seajs.debug){
+			window.onerror = function(sMsg,sUrl,sLine){
+				alert("Error: " + sMsg + "\n" +
+					"Line: " + sLine + "n" +
+					"URL: " + sUrl);
+				return false;
+			};
+		}
+		var localData = storage('themeData') || {};
+		var $ = require('jquery');
+		var localTime = new Date();
+		//应用本地模板
+		if(localData.stableVersion && localData.stableVersion.template){
+			try{
+				applyTheme(localData.stableVersion.template);
+			}catch(e){
+				delete localData.stableVersion;
+				storage('themeData', localData);
+				console.log('模板异常，已清除');
+			}
+		}
+		//请求版本信息
+		$.ajax({
+			url: seajs.version_control,
+			dataType:'json'
+		}).done(function(res){
+			if(res.status==='Y'){
+				checkVersion(res.data);
+			}else{
+				console.warn('theme api error!');
+			}
+		});
+
+		function checkVersion(remoteDate){
+			//检查模板
+			if(remoteDate.stableVersion && remoteDate.stableVersion.id && remoteDate.stableVersion.url){
+				if(localData.stableVersion && localData.stableVersion.template){
+					if(localData.stableVersion.id===remoteDate.stableVersion.id){
+						//缓存命中
+					}else{
+						console.log('更新模板');
+						getTheme(remoteDate.stableVersion.url, function(res){
+							localData.stableVersion = remoteDate.stableVersion;
+							localData.stableVersion.template = res;
+							storage('themeData', localData);
+						});
+					}
+				}else{
+					//首次获取并应用
+					getTheme(remoteDate.stableVersion.url, function(res){
+						localData.stableVersion = remoteDate.stableVersion;
+						localData.stableVersion.template = res;
+						storage('themeData', localData);
+						applyTheme(res);
+					});
+				}
+			}else if(!remoteDate.preApply){
+				console.warn('未返回模板信息');
+			}
+			//检查补丁
+			if(remoteDate.activeVersion && remoteDate.activeVersion.cycle && remoteDate.activeVersion.url){
+				var lifeCycle = remoteDate.activeVersion.cycle.split('-');
+				var today = new Date(remoteDate.today);
+				if(localData.activeVersion && localData.activeVersion.template && (localData.activeVersion.id===remoteDate.activeVersion.id)){
+					//已缓存
+					if(lifeCycle.length===2 && today.getTime() >= new Date(lifeCycle[0]).getTime() && (new Date(lifeCycle[1]).getTime() >= today.getTime())){
+						applyTheme(localData.activeVersion.template);
+					}
+				}else{
+					//存
+					getTheme(remoteDate.activeVersion.url, function(res){
+						localData.activeVersion = remoteDate.activeVersion;
+						localData.activeVersion.template = res;
+						storage('themeData', localData);
+						if(lifeCycle.length===2 && today.getTime() >= new Date(lifeCycle[0]).getTime() && (new Date(lifeCycle[1]).getTime() >= today.getTime())){
+							applyTheme(res);
+						}
+					});
+				}
+			}
+		}
+
+		function storage(key, value){
+			if (value === void(0)) {
+				var lsVal = localStorage.getItem(key);
+				if(lsVal && lsVal.indexOf('autostringify-') === 0 ){
+					return JSON.parse(lsVal.split('autostringify-')[1]);
+				}else{
+					return lsVal;
+				}
+			}else {
+				if ($.isPlainObject(value) || $.isArray(value)) {
+					value = 'autostringify-' + JSON.stringify(value);
+				}
+				return localStorage.setItem(key, value);
+			}
+		}
+
+		function getTheme(themeUrl, callback){
+			if(!themeUrl || !themeUrl.split){
+				return console.warn('applyTheme param error!');
+			}
+			$.ajax({
+				url: themeUrl,
+				dataType: 'html'
+			}).done(function(res){
+				if(typeof callback === 'function'){
+					callback(res);
+				}
+			});
+		}
+
+		function applyTheme(res, callback){
+			var cssStr = '',
+				jsStr = '',
+				jsNode = document.createElement('script'),
+				template,
+				js,
+				headNode = document.getElementsByTagName('head')[0];
+			if(!res){
+				return console.warn('applyTheme error!');
+			}
+
+			var css = res.match(/<style>([\s\S]*)<\/style>/);
+			if(css){
+				var cssText = css[1];
+				cssStr = css[0];
+				//插入css
+				var cssNode = document.createElement('style');
+				cssNode.innerHTML = cssText;
+				headNode.appendChild(cssNode);
+				res = res.replace(cssStr,'');
+			}
+			js = res.match(/<script type="text\/javascript">([\s\S]*)<\/script>/);
+			if(js){
+				var jsText = js[1];
+				jsStr = js[0];
+				//插入js
+				var modulName = 'module-' + parseInt(Math.random() * 1e8);
+				jsText = 'define("'+modulName+'", function(require) {\n' + jsText + '\n});seajs.use("'+modulName+'");';
+				jsNode.innerHTML = jsText;
+			}
+			template = $.trim(res.replace(jsStr,''));
+			if(template){
+				var $body = document.getElementById('body');
+				$body.innerHTML = template;
+			}
+			headNode.appendChild(jsNode);
+
+			typeof callback === 'function' && callback();
+		}
+	});
+	seajs.use('core');
+	</script>
+</html>
