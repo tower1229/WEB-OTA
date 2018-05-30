@@ -5,7 +5,7 @@
 
 /*! seajs设置 */
 seajs.config({
-	base: "http://static-zt.oss-cn-qingdao.aliyuncs.com/modules",
+	base: "//static-zt.oss-cn-qingdao.aliyuncs.com/modules",
 	paths: {
 		"asset" : seajs.data.dir.slice(0,-1)
 	},
